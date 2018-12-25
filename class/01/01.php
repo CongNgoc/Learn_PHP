@@ -12,10 +12,11 @@
 
 	$database = new Database($params);
 
-	$arrData = array('name'=>'Member 1234', 'status' => 0, 'ordering' => 9);
+	$arrData = array( 
+					array ('name'=>'Member', 'status' => 0, 'ordering' => 9),
+					array ('name'=>'Nguyen Ngoc Cong', 'status' => 1, 'ordering' => 90)
+				);
 
-	$arr_result = $database->insertData($arrData);
+	$arr_result = $database->insertData($arrData, 'multy');
 	
-	echo '<pre>';
-	print_r($arr_result);
-	echo '</pre>';
+	echo "New Record has id " . $arr_result;

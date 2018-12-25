@@ -53,13 +53,32 @@
 		}
 
 		//INSERT DATA
-		public function insertData($data)
-		{
-			$newQuery 	= $this->createQueryInsert($data);
-			$query 		= "INSERT INTO `$this->_table`(". $newQuery['cols'] .") VALUES (". $newQuery['vals'].");";
-			$this->query($query);
+		public function insertData($data, $type = "single")
+		{	
+			if($type == "single")
+			{
+				$newQuery 	= $this->createQueryInsert($data);
+				$query 		= "INSERT INTO `$this->_table`(". $newQuery['cols'] .") VALUES (". $newQuery['vals'].");";
+				$this->query($query);
+			}
+			else
+			{
+				foreach ($data as $value) {
+					$newQuery 	= $this->createQueryInsert($value);
+					$query 	= "INSERT INTO `$this->_table`(". $newQuery['cols'] .") VALUES (". $newQuery['vals'].");";
+					$this->query($query);
+				}
+			}
+			
+			return $this->lastId();
 		}
 		
+		// LAST ID
+		public function lastId()
+		{
+			return $this->_connect->insert_id;
+		}
+
 		//CREATE QUERY INSERT
 		public function createQueryInsert($data)
 		{
@@ -84,4 +103,59 @@
 			$this->_resultQuery = $this->_connect->query($query);
 			return $this->_resultQuery;
 		}
+
+		//UPDATE DATA 
+		public function updateData($data, $where)
+		{
+			$queryELements 	= $this->createQueryUpdate($data);
+			$where 			= $this->createWhereQuery($where);
+			$query = "UPDATE `$this->_table` SET ". $queryELements ." WHERE " . $where .";";
+			$this->query($query);
+			return $this->affectedRows();
+		}
+
+		//CREATE QUERY UPDATE
+		public function createQueryUpdate($query)
+		{
+			$newQuery = "";
+			if(!empty($query))
+			{
+				foreach ($query as $key => $value) 
+				{
+					$newQuery  .= ", `$key` = '$value'";
+				}
+			}
+			$newQuery = substr($newQuery, 2);
+			return $newQuery;
+		}
+
+		//CREATE NEW WHERE FOR QUERY UPDATE
+		public function createWhereQuery($where)
+		{
+			$newWhere = '' ;
+			$arrWhere = array();
+			if(!empty($where))
+			{
+				foreach ($where as $value)
+				{
+					$arrWhere[] = "`$value[0]` = '$value[1]'"; 
+					$arrWhere[] = $value[2]; 
+				}
+				$newWhere = implode(" ", $arrWhere);
+				return $newWhere;
+			}
+		} 
+
+		//AFFECTED ROWS
+		public function affectedRows()
+		{
+			return $this->_connect->affected_rows;
+		}
+
+		//DELETE DATA
+		public function deleteData()
+		{
+			
+		}
+
 	}
