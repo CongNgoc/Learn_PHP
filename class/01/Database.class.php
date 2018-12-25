@@ -153,9 +153,54 @@
 		}
 
 		//DELETE DATA
-		public function deleteData()
+		public function deleteData($where)
 		{
-			
+			$newWhere = $this->createWhereDelete($where);
+			$query = "DELETE FROM `$this->_table` WHERE " . $newWhere ." ;";
+			$this->query($query);
+			return $this->affectedRows();
 		}
 
+		//CREATE QUERY DELETE SQL
+		public function createWhereDelete($data)
+		{
+			$newWhere = '';
+			if(!empty($data))
+			{
+				foreach ($data as $value) {
+					$newWhere .= " OR `id` = '$value'";
+				}
+			}
+			$newWhere = substr($newWhere, 3);
+			return $newWhere;
+		}
+
+		//SINGLE RECORE
+		public function singleRecord($resultQuery = null)
+		{
+			$result = array();
+			$resultQuery = ($resultQuery == null) ? $this->_resultQuery : $resultQuery;
+			if($resultQuery->num_rows > 0)
+			{
+				$result = $resultQuery->fetch_assoc();
+			}
+			$resultQuery->free();
+			return $result;
+		}
+
+		//LIST RECORE
+		public function listRecord($resultQuery = null)
+		{
+			$result = array();
+			$resultQuery = ($resultQuery == null) ? $this->_resultQuery : $resultQuery;
+			if($resultQuery->num_rows > 0)
+			{
+				while($rows = $resultQuery->fetch_assoc())
+				{
+					$result[] = $rows;
+				}
+				$resultQuery->free();
+			}		
+			return $result;
+		}
 	}
